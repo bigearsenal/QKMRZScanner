@@ -5,9 +5,15 @@ import UIKit
 public struct MRZPassportView: View {
     @State private var sizeToFit: CGSize?
     @StateObject private var coordinator = MRZScannerViewRepresentable.Coordinator()
+
+    private let ratio: CGFloat // width / height
     private let resultHandler: (QKMRZScanResult) -> Void
 
-    public init(resultHandler: @escaping (QKMRZScanResult) -> Void) {
+    public init(
+        ratio: CGFloat,
+        resultHandler: @escaping (QKMRZScanResult) -> Void
+    ) {
+        self.ratio = ratio
         self.resultHandler = resultHandler
     }
 
@@ -40,10 +46,10 @@ public struct MRZPassportView: View {
 
         if proxySize.height > proxySize.width {
             width = proxySize.width
-            height = width * 88 / 128
+            height = width / ratio
         } else {
             height = proxySize.height
-            width = height / 88 * 128
+            width = height * ratio
         }
         return .init(width: width, height: height)
     }
@@ -118,7 +124,9 @@ private struct MockView: View {
     }
 
     var camera: some View {
-        MRZPassportView { scanResult in
+        MRZPassportView(
+            ratio: 375 / 214
+        ) { scanResult in
             result = scanResult
         }
     }
